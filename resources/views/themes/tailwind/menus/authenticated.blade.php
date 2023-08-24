@@ -6,7 +6,7 @@
         </a>
         <div x-data="{ dropdown: false }" @mouseenter="dropdown = true" @mouseleave="dropdown=false"
              @click.away="dropdown=false"
-             class="relative inline-flex items-center text-grey-500 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out border-b-2 border-transparent cursor-pointer hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300">
+             class="relative inline-flex items-center text-grey-500 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out border-b-2 border-transparent cursor-pointer hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 @if(Request::is('domains')){{ 'border-b-2 border-wave-500 text-gray-900 focus:border-wave-700' }}@else{{ 'text-gray-500 hover:border-gray-300 hover:text-gray-700 focus:text-gray-700 focus:border-gray-300' }}@endif">
             <span>Domains</span>
             <svg class="w-5 h-5 ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
@@ -25,7 +25,7 @@
                 <div class="border border-gray-100 shadow-md rounded-xl">
                     <div class="overflow-hidden shadow-xs rounded-xl">
                         <div class="relative z-20 grid gap-6 px-5 py-6 bg-white sm:p-8 sm:gap-8">
-                            <a href="#"
+                            <a href="{{route('domains.create')}}"
                                class="block px-5 py-3 -m-3 space-y-1 transition duration-150 ease-in-out hover:border-blue-500 hover:border-l-2 rounded-xl hover:bg-gray-100">
                                 <p class="text-base font-medium leading-6 text-gray-900">
                                     Add New
@@ -34,7 +34,7 @@
                                     Add a new domain to scan.
                                 </p>
                             </a>
-                            <a href="#" target="_blank"
+                            <a href="{{route('domains.index')}}"
                                class="block px-5 py-3 -m-3 space-y-1 transition duration-150 ease-in-out rounded-xl hover:bg-gray-100">
                                 <p class="text-base font-medium leading-6 text-gray-900">
                                     View All
@@ -53,7 +53,7 @@
             Scans
         </a>
         <a href="#"
-           class="inline-flex items-center text-grey-500 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none border-b-2 border-transparent @if(Request::is('domains')){{ 'border-b-2 border-wave-500 text-gray-900 focus:border-wave-700' }}@else{{ 'hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300' }}@endif">
+           class="inline-flex items-center text-grey-500 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none border-b-2 border-transparent @if(Request::is('reports')){{ 'border-b-2 border-wave-500 text-gray-900 focus:border-wave-700' }}@else{{ 'hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300' }}@endif">
             Reports
         </a>
         <a href="#"
@@ -75,9 +75,12 @@
                     @endif left on your Trial</span>
             </div>
         @endif
-        <div class="relative items-center justify-center hidden h-full md:flex">
-            <span class="px-1 py-1 text-xs text-black-600 bg-yellow-400 border border-gray-200 rounded-full">10</span>
-        </div>
+            <div class="relative items-center justify-center hidden h-8 w-8 md:flex">
+                <span class="flex items-center justify-center h-full w-full text-xs text-black-600 bg-yellow-400 border border-gray-200 rounded-full">
+                    {{auth()->user()->available_tokens}}
+                </span>
+            </div>
+
         @include('theme::partials.notifications')
 
         <!-- Profile dropdown -->

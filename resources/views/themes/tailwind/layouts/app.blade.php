@@ -53,7 +53,7 @@
 
     @include('theme::partials.header')
 
-    <main class="flex-grow overflow-x-hidden">
+    <main class="flex-grow">
         @yield('content')
     </main>
 
@@ -77,6 +77,7 @@
 
 
     @include('theme::partials.toast')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @if(session('message'))
         <script>setTimeout(function(){ popToast("{{ session('message_type') }}", "{{ session('message') }}"); }, 10);</script>
     @endif

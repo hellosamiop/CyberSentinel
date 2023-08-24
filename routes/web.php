@@ -11,6 +11,7 @@
 |
 */
 
+use App\Http\Controllers\User\DomainController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use TCG\Voyager\Facades\Voyager;
@@ -19,6 +20,12 @@ use Wave\Facades\Wave;
 // Authentication routes
 Auth::routes();
 
+//User Routes
+Route::group(['middleware' => 'auth'], function () {
+    Route::resource('domains', DomainController::class);
+});
+
+
 // Voyager Admin routes
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
@@ -26,3 +33,5 @@ Route::group(['prefix' => 'admin'], function () {
 
 // Wave routes
 Wave::routes();
+
+
