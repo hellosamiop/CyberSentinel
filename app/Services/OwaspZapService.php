@@ -57,4 +57,43 @@ class OwaspZapService
         return json_decode($response->getBody(), true);
     }
 
+    public function viewAlerts($baseUrl, $start = 0, $count = 5000, $riskId = "")
+    {
+        $endpoint = "/JSON/alert/view/alerts/?apikey={$this->apiKey}&baseurl={$baseUrl}&start={$start}&count={$count}&riskId={$riskId}";
+        $response = $this->client->get($endpoint);
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function viewAlertsSummary($baseUrl)
+    {
+        $endpoint = "/JSON/alert/view/alertsSummary/?apikey={$this->apiKey}&baseurl={$baseUrl}";
+        $response = $this->client->get($endpoint);
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function viewAlertsByRisk($baseUrl, $recurse = "")
+    {
+        $endpoint = "/JSON/alert/view/alertsByRisk/?apikey={$this->apiKey}&url={$baseUrl}&recurse={$recurse}";
+        $response = $this->client->get($endpoint);
+
+        return json_decode($response->getBody(), true);
+    }
+
+    public function checkThirdPartyLibrariesForCve($scanId)
+    {
+        $scanResults = $this->getScanResults($scanId);
+        $thirdPartyLibraries = $scanResults['results']; // Extract 3rd party libraries from $scanResults
+
+        $nistCveService = new NistCveService();
+
+        $libraryCveScores = [];
+        foreach ($thirdPartyLibraries as $library) {
+            $baseScores = $nistCveService->getCveBaseScore($library);
+            $libraryCveScores[$library] = $baseScores;
+        }
+
+        return $libraryCveScores;
+    }
 }

@@ -14,6 +14,13 @@ class DomainController extends Controller
     public function index()
     {
         $domains = Domain::with('industry')->get();
+//        $service = new OwaspZapService();
+//        dd($service->checkThirdPartyLibrariesForCve(0));
+//        foreach ($domains as $domain) {
+//            $data = $service->startScan($domain->domain_url);
+//
+//
+//        }
         return view('user.domains.index', compact('domains'));
     }
     public function create()
