@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\User\DomainController;
+use App\Http\Controllers\User\ScanController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use TCG\Voyager\Facades\Voyager;
@@ -23,6 +24,10 @@ Auth::routes();
 //User Routes
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('domains', DomainController::class);
+    Route::get('scans', [ScanController::class, 'index'])->name('scans.index');
+    Route::get('create', [ScanController::class, 'create'])->name('scans.create');
+    Route::post('store', [ScanController::class, 'store'])->name('scans.store');
+    Route::get('report', [ScanController::class, 'getReport'])->name('scans.report');
 });
 
 

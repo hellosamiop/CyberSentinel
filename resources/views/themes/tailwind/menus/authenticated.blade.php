@@ -48,7 +48,7 @@
                 </div>
             </div>
         </div>
-        <a href="#"
+        <a href="{{ route('scans.index') }}"
            class="inline-flex items-center text-grey-500 px-1 pt-1 text-sm font-medium leading-5 transition duration-150 ease-in-out focus:outline-none border-b-2 border-transparent @if(Request::is('scans')){{ 'border-b-2 border-wave-500 text-gray-900 focus:border-wave-700' }}@else{{ 'hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300' }}@endif">
             Scans
         </a>

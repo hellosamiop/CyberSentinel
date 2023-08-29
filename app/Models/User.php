@@ -42,4 +42,33 @@ class User extends Authenticatable
     protected $casts = [
         'trial_ends_at' => 'datetime',
     ];
+
+    /**
+     * Get the domains for the user.
+     */
+    public function domains(){
+        return $this->hasMany(Domain::class);
+    }
+
+    /**
+     * Get the scans for the user.
+     */
+    public function scans()
+    {
+        return $this->hasMany(Scan::class);
+    }
+
+    public function useTokens($count = 1){
+        $this->available_tokens = $this->available_tokens - $count;
+        $this->used_tokens = $this->used_tokens + $count;
+        $this->save();
+    }
+
+    public function addTokens($count = 1){
+        $this->total_tokens = $this->total_tokens + $count;
+        $this->available_tokens = $this->available_tokens + $count;
+        $this->save();
+    }
+
+
 }

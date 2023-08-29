@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
         $this->call(WaveKeyValuesTableSeeder::class);
         $this->call(CountriesTableSeeder::class);
         $this->call(IndustriesTableSeeder::class);
-
+        $this->call(OwaspZapCoreValueSeeder::class);
         fixPostgresSequence();
     }
 }

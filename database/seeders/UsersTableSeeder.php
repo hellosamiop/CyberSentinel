@@ -38,6 +38,9 @@ class UsersTableSeeder extends Seeder
                 'trial_ends_at' => NULL,
                 'verification_code' => NULL,
                 'verified' => 1,
+                'total_tokens' => 25,
+                'available_tokens' => 25,
+                'used_tokens' => 0,
             ),
         ));
 
