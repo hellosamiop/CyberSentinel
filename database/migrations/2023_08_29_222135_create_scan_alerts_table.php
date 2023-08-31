@@ -26,13 +26,13 @@ return new class extends Migration
             $table->string('cweid')->nullable();
             $table->string('confidence')->nullable();
             $table->string('wascid')->nullable();
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('messageId')->nullable();
             $table->string('inputVector')->nullable();
             $table->string('url')->nullable();
             $table->json('tags')->nullable();
-            $table->string('reference')->nullable();
-            $table->string('solution')->nullable();
+            $table->text('reference')->nullable();
+            $table->text('solution')->nullable();
             $table->string('alert')->nullable();
             $table->string('param')->nullable();
             $table->string('attack')->nullable();

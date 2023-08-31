@@ -1,7 +1,10 @@
 <?php
 
 namespace App\Services;
+
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 
 class OwaspZapService
 {
@@ -21,23 +24,45 @@ class OwaspZapService
         $endpoint = '/JSON/spider/action/scan/';
 
         // Make the API call
-        $response = $this->client->get($endpoint, [
-            'query' => [
-                'apikey' => $this->apiKey,
-                'url' => $target,
-                'contextName' => '',
-                'recurse' => ''
-            ]
-        ]);
-
+        try {
+            $response = $this->client->get($endpoint, [
+                'query' => [
+                    'apikey' => $this->apiKey,
+                    'url' => $target,
+                    'contextName' => '',
+                    'recurse' => ''
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 400) {
+                return ['error' => 'Bad Request'];
+            }
+            return ['error' => 'Client error'];
+        } catch (ServerException $e) {
+            if ($e->getResponse()->getStatusCode() == 502) {
+                return ['error' => 'Bad Gateway'];
+            }
+            return ['error' => 'Server error'];
+        }
         return json_decode($response->getBody(), true);
     }
 
     public function getScanStatus($scanId)
     {
-        $endpoint = "/JSON/spider/view/status/?apikey={$this->apiKey}&scanId={$scanId}";
-        $response = $this->client->get($endpoint);
-
+        try {
+            $endpoint = "/JSON/spider/view/status/?apikey={$this->apiKey}&scanId={$scanId}";
+            $response = $this->client->get($endpoint);
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 400) {
+                return ['error' => 'Bad Request'];
+            }
+            return ['error' => 'Client error'];
+        } catch (ServerException $e) {
+            if ($e->getResponse()->getStatusCode() == 502) {
+                return ['error' => 'Bad Gateway'];
+            }
+            return ['error' => 'Server error'];
+        }
         return json_decode($response->getBody(), true);
     }
 
@@ -49,7 +74,7 @@ class OwaspZapService
         return json_decode($response->getBody(), true);
     }
 
-    public function getAlerts($targetUrl, $start = 0, $count = 10)
+    public function getAlerts($targetUrl, $start = 0, $count = 100)
     {
         $endpoint = "/JSON/core/view/alerts/?apikey={$this->apiKey}&baseurl={$targetUrl}&start={$start}&count={$count}";
         $response = $this->client->get($endpoint);

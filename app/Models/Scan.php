@@ -23,7 +23,7 @@ class Scan extends Model
             $this->save();
             return 'Completed';
         } else {
-            return 'In Progress' . '(' . (int)$status['status'] . '%)';
+            return 'In Progress' . (isset($status['status']) ? '(' . $status['status'] . '%)' : '(0%)');
         }
     }
 

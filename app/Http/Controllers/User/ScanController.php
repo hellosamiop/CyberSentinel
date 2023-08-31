@@ -30,24 +30,24 @@ class ScanController extends Controller
         $request->validate([
             'domain_id' => 'required|exists:domains,id',
         ]);
-//        if(auth()->user()->available_tokens <= 0){
-//            return redirect()->route('scans.index')
-//            ->with(['message' => 'Insufficient Tokens for scan.', 'message_type' => 'danger']);
-//        }
-        if(auth()->user()->scans()->where('domain_id', $request->domain_id)->exists()){
+        if (auth()->user()->available_tokens <= 0) {
             return redirect()->route('scans.index')
-            ->with(['message' => 'Domain already scanned.', 'message_type' => 'danger']);
+                ->with(['message' => 'Insufficient Tokens for scan.', 'message_type' => 'danger']);
         }
+//        if (auth()->user()->scans()->where('domain_id', $request->domain_id)->exists()) {
+//            return redirect()->route('scans.index')
+//                ->with(['message' => 'Domain already scanned.', 'message_type' => 'danger']);
+//        }
 
         $domain = Domain::query()->find($request->domain_id);
         $service = new OwaspZapService();
         $scan = $service->startScan($domain->domain_url);
         $flag = 'a';
-        if($scan && isset($scan['scan'])) {
+        if ($scan && isset($scan['scan'])) {
             $scan_id = $scan['scan'];
             $status = $service->getScanStatus($scan_id);
             $flag = 'b';
-            if($status && isset($status['status'])){
+            if ($status && isset($status['status'])) {
                 DB::beginTransaction();
                 try {
                     $scan = new Scan();
@@ -58,66 +58,68 @@ class ScanController extends Controller
                     $scan->save();
                     auth()->user()->useTokens(1);
                     $result = $service->getScanResults($scan_id);
-                    if($result){
+                    if ($result) {
                         ScanResult::create([
                             'scan_id' => $scan->id,
                             'result' => json_encode($result)
                         ]);
                     }
-                    $alerts = $service->getAlerts($domain->domain_url, 0, 5000);
-                    if($alerts){
-                        $this->storeAlerts($alerts, $scan->id);
-                    }
+                    $this->storeAlerts($service, $domain->domain_url, $scan->id);
                     DB::commit();
-                }catch (\Exception $e){
+                    $flag = 'c';
+                } catch (\Exception $e) {
                     DB::rollBack();
                     return redirect()->route('scans.index')
-                    ->with(['message' => 'Domain Scan Failed. Could not save scan. '. $e->getMessage(), 'message_type' => 'danger']);
+                        ->with(['message' => 'Domain Scan Failed. Could not save scan. ' . $e->getMessage(), 'message_type' => 'danger']);
                 }
-                $flag = 'c';
             }
         }
         if ($flag == 'c') {
             return redirect()->route('scans.index')
-            ->with(['message' => 'Domain Scanned successfully.', 'message_type' => 'success']);
-        }
-        elseif ($flag == 'b') {
+                ->with(['message' => 'Domain Scanned successfully.', 'message_type' => 'success']);
+        } elseif ($flag == 'b') {
             return redirect()->route('scans.index')
-            ->with(['message' => 'Domain Scan Failed. Could not retrieve status', 'message_type' => 'danger']);
-        }
-        else {
+                ->with(['message' => 'Domain Scan Failed. Could not retrieve status', 'message_type' => 'danger']);
+        } else {
             return redirect()->route('scans.index')
-            ->with(['message' => 'Domain Scan Failed. Could not retrieve scan id', 'message_type' => 'danger']);
+                ->with(['message' => 'Domain Scan Failed. Could not retrieve scan id', 'message_type' => 'danger']);
         }
     }
 
-    public function storeAlerts($alerts, $scan_id){
-        foreach($alerts as $alert){
-            ScanAlerts::create([
-                'scan_id' => $scan_id,
-                'sourceid' => $alert['sourceid'],
-                'alertRef' => $alert['alertRef'],
-                'a_id' => $alert['id'],
-                'other' => $alert['other'],
-                'method' => $alert['method'],
-                'evidence' => $alert['evidence'],
-                'pluginId' => $alert['pluginId'],
-                'cweid' => $alert['cweid'],
-                'confidence' => $alert['confidence'],
-                'wascid' => $alert['wascid'],
-                'description' => $alert['description'],
-                'messageId' => $alert['messageId'],
-                'inputVector' => $alert['inputVector'],
-                'url' => $alert['url'],
-                'tags' => json_encode($alert['tags']),
-                'reference' => $alert['reference'],
-                'solution' => $alert['solution'],
-                'alert' => $alert['alert'],
-                'param' => $alert['param'],
-                'attack' => $alert['attack'],
-                'name' => $alert['name'],
-                'risk' => $alert['risk'],
-            ]);
+    public function storeAlerts($service, $domain_url, $scan_id)
+    {
+        $alerts = $service->getAlerts($domain_url, 0, 10);
+        $alerts = $alerts['alerts'];
+        foreach ($alerts as $alert) {
+            $scan_alert = new ScanAlerts();
+            try {
+                $scan_alert->scan_id = $scan_id;
+                $scan_alert->sourceid = $alert['sourceid'];
+                $scan_alert->alertRef = $alert['alertRef'];
+                $scan_alert->a_id = $alert['id'];
+                $scan_alert->other = $alert['other'];
+                $scan_alert->method = $alert['method'];
+                $scan_alert->evidence = $alert['evidence'];
+                $scan_alert->pluginId = $alert['pluginId'];
+                $scan_alert->cweid = $alert['cweid'];
+                $scan_alert->confidence = $alert['confidence'];
+                $scan_alert->wascid = $alert['wascid'];
+                $scan_alert->description = $alert['description'];
+                $scan_alert->messageId = $alert['messageId'];
+                $scan_alert->inputVector = $alert['inputVector'];
+                $scan_alert->url = $alert['url'];
+                $scan_alert->tags = json_encode($alert['tags']);
+                $scan_alert->reference = $alert['reference'];
+                $scan_alert->solution = $alert['solution'];
+                $scan_alert->alert = $alert['alert'];
+                $scan_alert->param = $alert['param'];
+                $scan_alert->attack = $alert['attack'];
+                $scan_alert->name = $alert['name'];
+                $scan_alert->risk = $alert['risk'];
+                $scan_alert->save();
+            }catch (\Exception $e) {
+                dd($e->getMessage());
+            }
         }
     }
 

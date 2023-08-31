@@ -56,6 +56,7 @@ class DomainController extends Controller
 
     public function show(Domain $domain)
     {
+//        $domain->getReportData();
         return view('user.domains.show', compact('domain'));
     }
 
