@@ -56,8 +56,16 @@ class DomainController extends Controller
 
     public function show(Domain $domain)
     {
-//        $domain->getReportData();
-        return view('user.domains.show', compact('domain'));
+        $scan = $domain->scans()->latest()->first();
+        if ($scan) {
+            $health_data = generateHealthData($scan->scan_id);
+            $attack_data = generateAttackData($scan->scan_id);
+        }
+        $data = [
+            'health_data' => $health_data ?? generateHealthData(null),
+            'attack_data' => $attack_data ?? generateAttackData(null),
+        ];
+        return view('user.domains.show', compact('domain', 'data'));
     }
 
     public function edit(Domain $domain)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ScanDomain;
 use App\Models\Domain;
 use App\Models\Scan;
 use App\Models\ScanAlerts;
@@ -34,10 +35,6 @@ class ScanController extends Controller
             return redirect()->route('scans.index')
                 ->with(['message' => 'Insufficient Tokens for scan.', 'message_type' => 'danger']);
         }
-//        if (auth()->user()->scans()->where('domain_id', $request->domain_id)->exists()) {
-//            return redirect()->route('scans.index')
-//                ->with(['message' => 'Domain already scanned.', 'message_type' => 'danger']);
-//        }
 
         $domain = Domain::query()->find($request->domain_id);
         $service = new OwaspZapService();
@@ -45,15 +42,12 @@ class ScanController extends Controller
         $flag = 'a';
         if ($scan && isset($scan['scan'])) {
             $scan_id = $scan['scan'];
-            $status = $service->getScanStatus($scan_id);
-            $flag = 'b';
-            if ($status && isset($status['status'])) {
                 DB::beginTransaction();
                 try {
                     $scan = new Scan();
                     $scan->scan_id = $scan_id;
                     $scan->domain_id = $request->domain_id;
-                    $scan->scan_status = $status['status'];
+                    $scan->scan_status = 'initialized';
                     $scan->user_id = auth()->user()->id;
                     $scan->save();
                     auth()->user()->useTokens(1);
@@ -64,22 +58,18 @@ class ScanController extends Controller
                             'result' => json_encode($result)
                         ]);
                     }
-                    $this->storeAlerts($service, $domain->domain_url, $scan->id);
                     DB::commit();
-                    $flag = 'c';
+                    $flag = 'b';
                 } catch (\Exception $e) {
                     DB::rollBack();
                     return redirect()->route('scans.index')
                         ->with(['message' => 'Domain Scan Failed. Could not save scan. ' . $e->getMessage(), 'message_type' => 'danger']);
                 }
-            }
+                ScanDomain::dispatch($domain->domain_url, $scan_id);
         }
-        if ($flag == 'c') {
+        if ($flag == 'b') {
             return redirect()->route('scans.index')
-                ->with(['message' => 'Domain Scanned successfully.', 'message_type' => 'success']);
-        } elseif ($flag == 'b') {
-            return redirect()->route('scans.index')
-                ->with(['message' => 'Domain Scan Failed. Could not retrieve status', 'message_type' => 'danger']);
+                ->with(['message' => 'Domain Scanned initiated.', 'message_type' => 'success']);
         } else {
             return redirect()->route('scans.index')
                 ->with(['message' => 'Domain Scan Failed. Could not retrieve scan id', 'message_type' => 'danger']);
@@ -117,7 +107,7 @@ class ScanController extends Controller
                 $scan_alert->name = $alert['name'];
                 $scan_alert->risk = $alert['risk'];
                 $scan_alert->save();
-            }catch (\Exception $e) {
+            } catch (\Exception $e) {
                 dd($e->getMessage());
             }
         }

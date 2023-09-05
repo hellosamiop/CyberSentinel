@@ -17,27 +17,27 @@ class HealthClassSeeder extends Seeder
     {
         $classes = [
             [
-                's' => 'H1',
+                'h' => 'H1',
                 'class' => 'Code',
             ],
             [
-                's' => 'H2',
+                'h' => 'H2',
                 'class' => 'Configuration',
             ],
             [
-                's' => 'H3',
+                'h' => 'H3',
                 'class' => 'Maintenance',
             ],
             [
-                's' => 'H4',
+                'h' => 'H4',
                 'class' => 'Client',
             ],
             [
-                's' => 'H5',
+                'h' => 'H5',
                 'class' => '3rd Party',
             ],
             [
-                's' => 'H6',
+                'h' => 'H6',
                 'class' => 'Social',
             ],
         ];

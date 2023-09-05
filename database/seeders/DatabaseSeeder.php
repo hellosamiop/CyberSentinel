@@ -40,6 +40,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CountriesTableSeeder::class);
         $this->call(IndustriesTableSeeder::class);
         $this->call(OwaspZapCoreValueSeeder::class);
+        $this->call(AttackClassSeeder::class);
+        $this->call(HealthClassSeeder::class);
         $this->call(DomainSeeder::class);
         fixPostgresSequence();
     }

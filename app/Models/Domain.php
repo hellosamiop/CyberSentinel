@@ -59,16 +59,6 @@ class Domain extends Model
         return $this->hasMany(Scan::class);
     }
 
-    public function getReportData()
-    {
-        $scan = $this->scans()->latest()->first();
-        if ($scan) {
-            $alerts = $scan->ScanAlerts;
-            foreach ($alerts as $alert) {
-                dd($alert->owasp_value);
-            }
-        }
-    }
 
     public function scoreHistory(){
         $scores = [];

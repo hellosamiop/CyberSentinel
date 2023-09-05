@@ -15,15 +15,8 @@ class Scan extends Model
     {
         if ($value == '100') {
             return 'Completed';
-        }
-        $service = new OwaspZapService();
-        $status = $service->getScanStatus($this->scan_id);
-        if (isset($status['status']) && $status['status'] == '100') {
-            $this->scan_status = '100';
-            $this->save();
-            return 'Completed';
         } else {
-            return 'In Progress' . (isset($status['status']) ? '(' . $status['status'] . '%)' : '(0%)');
+            return 'In Progress (' . $value .'%)';
         }
     }
 

@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('s4')->nullable();
             $table->string('s5')->nullable();
             $table->string('s6')->nullable();
+            $table->char('hml','3')->nullable();
             $table->timestamps();
         });
     }

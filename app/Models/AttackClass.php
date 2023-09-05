@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class AttackClass extends Model
 {
     use HasFactory;
+
 }
