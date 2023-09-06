@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Domain extends Model
 {
@@ -13,23 +14,14 @@ class Domain extends Model
 
     public function getScoreAttribute($value)
     {
-        if ($value) {
-            return $value;
-        }else{
-            $scan = $this->scans()->latest()->first();
-            if ($scan) {
-                $alerts = $scan->ScanAlerts;
-                $score = 0;
-                foreach ($alerts as $alert) {
-                    $owasp_value = $alert->owasp_value;
-                    $score += $owasp_value->detectability + $owasp_value->exploitability + $owasp_value->technical_impact;
-                }
-                $this->score = $score;
-                $this->save();
-                return $score;
-            }
+        if ($this->scans()->count() == 0) {
+            return 'Not Scanned';
+        } else {
+            $score = $this->scoreHistory(true)[0];
+            $this->score = $score;
+            $this->save();
         }
-        return 'Not Scanned';
+        return $score;
     }
 
     public function industry()
@@ -60,18 +52,22 @@ class Domain extends Model
     }
 
 
-    public function scoreHistory(){
-        $scores = [];
-        $scans = $this->scans()->latest()->get();
-        foreach ($scans as $scan){
-            $alerts = $scan->ScanAlerts;
-            $score = 0;
-            foreach ($alerts as $alert) {
-                $owasp_value = $alert->owasp_value;
-                $score += $owasp_value->detectability + $owasp_value->exploitability + $owasp_value->technical_impact;
-            }
-            $scores[] = $score;
+    public function scoreHistory($latest = false): array
+    {
+        if ($latest) {
+            $scans = [$this->scans()->latest()->pluck('scan_id')->first()];
+        } else {
+            $scans = $this->scans()->latest()->pluck('scan_id')->toArray();
         }
-        return $scores;
+        $scores = DB::table('scans')
+            ->leftJoin('scan_alerts', 'scans.scan_id', '=', 'scan_alerts.scan_id')
+            ->leftJoin('owasp_zap_core_values', 'scan_alerts.alertRef', '=', 'owasp_zap_core_values.id') // Replace with actual foreign key
+            ->select('scans.scan_id', DB::raw('SUM(owasp_zap_core_values.detectability + owasp_zap_core_values.exploitability + owasp_zap_core_values.technical_impact) as total_score'))
+            ->whereIn('scans.scan_id', $scans)
+            ->groupBy('scans.scan_id')
+            ->pluck('total_score')->toArray();
+        return array_map(function ($value) {
+            return $value === null ? 0 : $value;
+        }, $scores);
     }
 }

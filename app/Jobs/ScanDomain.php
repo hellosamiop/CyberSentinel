@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class ScanDomain implements ShouldQueue
 {
@@ -40,10 +41,15 @@ class ScanDomain implements ShouldQueue
         $this->storeAlerts($owaspZapService, $this->domain, $this->scan_id);
     }
 
+    public function failed(Throwable $exception): void
+    {
+        Log::error('Failed Running Job: ' . $exception->getMessage());
+    }
+
     public function storeAlerts($service, $domain_url, $scan_id)
     {
         $start = 0;
-        $count = 5000;  // Number of records to fetch in a single API call
+        $count = 1000;  // Number of records to fetch in a single API call
         $scan_status = 0;
         $scan = \App\Models\Scan::query()->where('scan_id', $scan_id)->get()->first();
 
@@ -61,27 +67,27 @@ class ScanDomain implements ShouldQueue
                         'sourceid' => $alert['sourceid'],
                         'alertRef' => $alert['alertRef'],
                         'a_id' => $alert['id'],
-                        'other' => $alert['other'],
-                        'method' => $alert['method'],
-                        'evidence' => $alert['evidence'],
-                        'pluginId' => $alert['pluginId'],
-                        'cweid' => $alert['cweid'],
-                        'confidence' => $alert['confidence'],
-                        'wascid' => $alert['wascid'],
-                        'description' => $alert['description'],
-                        'messageId' => $alert['messageId'],
-                        'inputVector' => $alert['inputVector'],
-                        'url' => $alert['url'],
-                        'tags' => json_encode($alert['tags']),
-                        'reference' => $alert['reference'],
-                        'solution' => $alert['solution'],
-                        'alert' => $alert['alert'],
-                        'param' => $alert['param'],
-                        'attack' => $alert['attack'],
-                        'name' => $alert['name'],
-                        'risk' => $alert['risk'],
                         'created_at' => now(),
-                        'updated_at' => now()
+//                        'other' => $alert['other'],
+//                        'method' => $alert['method'],
+//                        'evidence' => $alert['evidence'],
+//                        'pluginId' => $alert['pluginId'],
+//                        'cweid' => $alert['cweid'],
+//                        'confidence' => $alert['confidence'],
+//                        'wascid' => $alert['wascid'],
+//                        'description' => $alert['description'],
+//                        'messageId' => $alert['messageId'],
+//                        'inputVector' => $alert['inputVector'],
+//                        'url' => $alert['url'],
+//                        'tags' => json_encode($alert['tags']),
+//                        'reference' => $alert['reference'],
+//                        'solution' => $alert['solution'],
+//                        'alert' => $alert['alert'],
+//                        'param' => $alert['param'],
+//                        'attack' => $alert['attack'],
+//                        'name' => $alert['name'],
+//                        'risk' => $alert['risk'],
+//                        'updated_at' => now()
                     ];
                 } catch (\Exception $e) {
                     Log::error('Failed to prepare alert for bulk insert: ' . $e->getMessage());

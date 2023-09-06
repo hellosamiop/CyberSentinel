@@ -14,7 +14,7 @@ class OwaspZapService
     public function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'https://zap.cyberenew.au',
+            'base_uri' => 'https://localzap.cyberenew.au',
         ]);
     }
 

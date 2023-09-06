@@ -15,6 +15,8 @@ class Scan extends Model
     {
         if ($value == '100') {
             return 'Completed';
+        } elseif ($value == 'initialized') {
+            return 'Initialized Scan';
         } else {
             return 'In Progress (' . $value .'%)';
         }
@@ -49,7 +51,7 @@ class Scan extends Model
      */
     public function scanAlerts()
     {
-        return $this->hasMany(ScanAlerts::class);
+        return $this->hasMany(ScanAlerts::class, 'id', 'scan_id');
     }
 
     /**

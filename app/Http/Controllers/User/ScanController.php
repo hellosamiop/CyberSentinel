@@ -39,6 +39,9 @@ class ScanController extends Controller
         $domain = Domain::query()->find($request->domain_id);
         $service = new OwaspZapService();
         $scan = $service->startScan($domain->domain_url);
+//        $scan = $service->viewAlertsSummary($domain->domain_url);
+//        dd($scan);
+
         $flag = 'a';
         if ($scan && isset($scan['scan'])) {
             $scan_id = $scan['scan'];

@@ -81,27 +81,27 @@ function generateHealthData($scan_id)
     $health_classes = \App\Models\HealthClass::query()->pluck('class', 'h')->toArray();
     return [
         'h1' => [
-            'score' => $h1,
+            'score' => number_format($h1, 2),
             'class' => $health_classes['H1']
         ],
         'h2' => [
-            'score' => $h2,
+            'score' => number_format($h2, 2),
             'class' => $health_classes['H2']
         ],
         'h3' => [
-            'score' => $h3,
+            'score' => number_format($h3, 2),
             'class' => $health_classes['H3']
         ],
         'h4' => [
-            'score' => $h4,
+            'score' => number_format($h4, 2),
             'class' => $health_classes['H4']
         ],
         'h5' => [
-            'score' => $h5,
+            'score' => number_format($h5, 2),
             'class' => $health_classes['H5']
         ],
         'h6' => [
-            'score' => $h6,
+            'score' => number_format($h6, 2),
             'class' => $health_classes['H6']
         ],
     ];
@@ -146,32 +146,38 @@ function generateAttackData($scan_id)
     return [
         's1' => [
             'score' => $s1,
-            'likelihood' => getThreshold($s1),
+            'likelihood' => getThreshold($s1)[0],
+            'color' => getThreshold($s1)[1],
             'class' => $attack_classes['S1'] ?? '',
         ],
         's2' => [
             'score' => $s2,
-            'likelihood' => getThreshold($s2),
+            'likelihood' => getThreshold($s2)[0],
+            'color' => getThreshold($s2)[1],
             'class' => $attack_classes['S2'] ?? '',
         ],
         's3' => [
             'score' => $s3,
-            'likelihood' => getThreshold($s3),
+            'likelihood' => getThreshold($s3)[0],
+            'color' => getThreshold($s3)[1],
             'class' => $attack_classes['S3'] ?? '',
         ],
         's4' => [
             'score' => $s4,
-            'likelihood' => getThreshold($s4),
+            'likelihood' => getThreshold($s4)[0],
+            'color' => getThreshold($s4)[1],
             'class' => $attack_classes['S4'] ?? '',
         ],
         's5' => [
             'score' => $s5,
-            'likelihood' => getThreshold($s5),
+            'likelihood' => getThreshold($s5)[0],
+            'color' => getThreshold($s5)[1],
             'class' => $attack_classes['S5'] ?? '',
         ],
         's6' => [
             'score' => $s6,
-            'likelihood' => getThreshold($s6),
+            'likelihood' => getThreshold($s6)[0],
+            'color' => getThreshold($s6)[1],
             'class' => $attack_classes['S6'] ?? '',
         ],
     ];
@@ -182,10 +188,10 @@ function generateAttackData($scan_id)
 function getThreshold($score)
 {
     if ($score > 2000) {
-        return 'Probable';
+        return ['Probable', '#ff0000'];
     } elseif ($score > 250) {
-        return 'Possible';
+        return ['Possible', '#ffd65a'];
     } else {
-        return 'Unlikely';
+        return ['Unlikely', '#19b861'];
     }
 }

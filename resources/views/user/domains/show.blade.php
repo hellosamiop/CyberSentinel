@@ -58,7 +58,7 @@
                                     <div class="icon voyager-settings"></div>
                                     <span>{{$attack['class']}}</span>
                                 </div>
-                                <h1 style="font-size: 30px">{{$attack['likelihood']}}</h1>
+                                <h1 style="font-size: 30px; color: {{$attack['color']}}">{{$attack['likelihood']}}</h1>
                             </div>
                         @endforeach
                     </div>
