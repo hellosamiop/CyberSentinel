@@ -21,6 +21,9 @@ use Wave\Facades\Wave;
 // Authentication routes
 Auth::routes();
 
+Route::get('/logs', [\App\Http\Controllers\LogController::class, 'showLogs']);
+Route::get('/clear-logs', [\App\Http\Controllers\LogController::class, 'clearLogs'])->name('clear-logs');
+
 //User Routes
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('domains', DomainController::class);
@@ -28,6 +31,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('scans/create', [ScanController::class, 'create'])->name('scans.create');
     Route::post('scans/store', [ScanController::class, 'store'])->name('scans.store');
     Route::get('scans/report', [ScanController::class, 'getReport'])->name('scans.report');
+
 });
 
 
