@@ -25,9 +25,9 @@ Auth::routes();
 Route::group(['middleware' => 'auth'], function () {
     Route::resource('domains', DomainController::class);
     Route::get('scans', [ScanController::class, 'index'])->name('scans.index');
-    Route::get('create', [ScanController::class, 'create'])->name('scans.create');
-    Route::post('store', [ScanController::class, 'store'])->name('scans.store');
-    Route::get('report', [ScanController::class, 'getReport'])->name('scans.report');
+    Route::get('scans/create', [ScanController::class, 'create'])->name('scans.create');
+    Route::post('scans/store', [ScanController::class, 'store'])->name('scans.store');
+    Route::get('scans/report', [ScanController::class, 'getReport'])->name('scans.report');
 });
 
 

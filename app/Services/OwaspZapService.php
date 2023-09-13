@@ -82,11 +82,10 @@ class OwaspZapService
         return json_decode($response->getBody(), true);
     }
 
-    public function viewAlerts($baseUrl, $start = 0, $count = 5000, $riskId = "")
+    public function getAlertsCount($baseUrl)
     {
-        $endpoint = "/JSON/alert/view/alerts/?apikey={$this->apiKey}&baseurl={$baseUrl}&start={$start}&count={$count}&riskId={$riskId}";
+        $endpoint = "/JSON/alert/view/numberOfAlerts/?apikey={$this->apiKey}&baseurl={$baseUrl}";
         $response = $this->client->get($endpoint);
-
         return json_decode($response->getBody(), true);
     }
 

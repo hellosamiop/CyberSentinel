@@ -39,36 +39,36 @@ class ScanController extends Controller
         $domain = Domain::query()->find($request->domain_id);
         $service = new OwaspZapService();
         $scan = $service->startScan($domain->domain_url);
-//        $scan = $service->viewAlertsSummary($domain->domain_url);
+//        $scan = $service->getAlertsCount($domain->domain_url);
 //        dd($scan);
 
         $flag = 'a';
         if ($scan && isset($scan['scan'])) {
             $scan_id = $scan['scan'];
-                DB::beginTransaction();
-                try {
-                    $scan = new Scan();
-                    $scan->scan_id = $scan_id;
-                    $scan->domain_id = $request->domain_id;
-                    $scan->scan_status = 'initialized';
-                    $scan->user_id = auth()->user()->id;
-                    $scan->save();
-                    auth()->user()->useTokens(1);
-                    $result = $service->getScanResults($scan_id);
-                    if ($result) {
-                        ScanResult::create([
-                            'scan_id' => $scan->id,
-                            'result' => json_encode($result)
-                        ]);
-                    }
-                    DB::commit();
-                    $flag = 'b';
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    return redirect()->route('scans.index')
-                        ->with(['message' => 'Domain Scan Failed. Could not save scan. ' . $e->getMessage(), 'message_type' => 'danger']);
+            DB::beginTransaction();
+            try {
+                $new_scan = new Scan();
+                $new_scan->scan_id = $scan_id;
+                $new_scan->domain_id = $request->domain_id;
+                $new_scan->scan_status = 'initialized';
+                $new_scan->user_id = auth()->user()->id;
+                $new_scan->save();
+                auth()->user()->useTokens(1);
+                $result = $service->getScanResults($scan_id);
+                if ($result) {
+                    ScanResult::create([
+                        'scan_id' => $new_scan->id,
+                        'result' => json_encode($result)
+                    ]);
                 }
-                ScanDomain::dispatch($domain->domain_url, $scan_id);
+                DB::commit();
+                $flag = 'b';
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return redirect()->route('scans.index')
+                    ->with(['message' => 'Domain Scan Failed. Could not save scan. ' . $e->getMessage(), 'message_type' => 'danger']);
+            }
+            ScanDomain::dispatch($domain->domain_url, $new_scan);
         }
         if ($flag == 'b') {
             return redirect()->route('scans.index')

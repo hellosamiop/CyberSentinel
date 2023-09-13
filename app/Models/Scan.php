@@ -18,7 +18,7 @@ class Scan extends Model
         } elseif ($value == 'initialized') {
             return 'Initialized Scan';
         } else {
-            return 'In Progress (' . $value .'%)';
+            return $value;
         }
     }
 

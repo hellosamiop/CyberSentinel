@@ -15,7 +15,6 @@ class SettingsTableSeeder extends Seeder
     public function run()
     {
 
-
         \DB::table('settings')->delete();
 
         \DB::table('settings')->insert(array (
@@ -23,8 +22,8 @@ class SettingsTableSeeder extends Seeder
             array (
                 'id' => 1,
                 'key' => 'site.title',
-                'display_name' => 'Cyberenew',
-                'value' => 'Wave',
+                'display_name' => 'Site Title',
+                'value' => 'Cyberenew',
                 'details' => '',
                 'type' => 'text',
                 'order' => 1,
@@ -57,7 +56,7 @@ class SettingsTableSeeder extends Seeder
                 'id' => 6,
                 'key' => 'admin.title',
                 'display_name' => 'Admin Title',
-                'value' => 'Wave',
+                'value' => 'Cyberenew Admin',
                 'details' => '',
                 'type' => 'text',
                 'order' => 1,
@@ -68,7 +67,7 @@ class SettingsTableSeeder extends Seeder
                 'id' => 7,
                 'key' => 'admin.description',
                 'display_name' => 'Admin Description',
-                'value' => 'Create some waves and build your next great idea',
+                'value' => 'Manage your website scans and reports',
                 'details' => '',
                 'type' => 'text',
                 'order' => 2,
