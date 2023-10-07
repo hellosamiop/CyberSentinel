@@ -16,6 +16,11 @@ use Throwable;
 
 class ScanDomain implements ShouldQueue
 {
+
+    public $timeout = 1200; // 20 minutes
+    public $tries = 3; // Number of retries
+
+
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private $domain;
