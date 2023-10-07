@@ -58,7 +58,7 @@ class ScanDomain implements ShouldQueue
         $start = 0;
         $scan = \App\Models\Scan::query()->where('scan_id', $scan_id)->get()->first();
         $alerts_count = $service->getAlertsCount($domain_url);
-        $total_count = $alerts_count['numberOfAlerts'];
+        $total_count = $alerts_count['numberOfAlerts'] + 1;
         while ($start < $total_count) {
             $alerts = $service->getAlerts($domain_url, $start, self::BATCH_COUNT);
             $alerts = $alerts['alerts'];
@@ -79,7 +79,7 @@ class ScanDomain implements ShouldQueue
             ScanAlerts::insert($bulkInsertData);
             $this->updateStatus($this->scan, 'Fetching Alerts (' . $start . '/' . $total_count . ')');
         }
-        if ($start == $total_count) {
+        if ($start >= $total_count) {
             $this->updateStatus($this->scan, 'Completed');
         }
     }
