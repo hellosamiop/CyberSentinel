@@ -198,6 +198,11 @@ function getThreshold($score)
 
 function generateHistoricalScore($scan_id)
 {
+    // If there are no scan alerts for this scan, return a default score of 0.
+    if (!DB::table('scan_alerts')->where('scan_id', $scan_id)->exists()) {
+        return number_format(0, 2);
+    }
+
     // Retrieve detailed health and attack data for the given scan.
     $healthData = generateHealthData($scan_id);
     $attackData = generateAttackData($scan_id);
@@ -209,8 +214,8 @@ function generateHistoricalScore($scan_id)
     foreach ($healthData as $health) {
         $healthSum += floatval($health['score']);
     }
-    // Default to 9 (perfect) if no data is found.
-    $avgHealth = $healthCount > 0 ? $healthSum / $healthCount : 9;
+    // If there are no health values, default to 0.
+    $avgHealth = $healthCount > 0 ? $healthSum / $healthCount : 0;
 
     // Calculate average attack score.
     // Higher attack scores represent higher risk.
@@ -223,13 +228,11 @@ function generateHistoricalScore($scan_id)
 
     // Normalize the attack score.
     // We assume that an average attack score of 2000 corresponds to the worst-case scenario on a 0-9 scale.
-    // (This mirrors the thresholds in getThreshold())
     $normalizedAttack = min($avgAttack / 2000, 1) * 9;
 
     // Compute a composite score.
-    // Here, (9 - normalizedAttack) represents the "attack safety" (a higher value is better),
+    // (9 - normalizedAttack) represents the "attack safety" (a higher value is better),
     // so by averaging it with the average health score, we get a balanced overall score.
-    // The result is a value between 0 and 9.
     $overallScore = ($avgHealth + (9 - $normalizedAttack)) / 2;
 
     // Ensure the score is not negative.
@@ -238,4 +241,3 @@ function generateHistoricalScore($scan_id)
     // Return the composite score formatted to two decimal places.
     return number_format($overallScore, 2);
 }
-
