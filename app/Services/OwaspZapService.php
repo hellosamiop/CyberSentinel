@@ -9,12 +9,12 @@ use GuzzleHttp\Exception\ServerException;
 class OwaspZapService
 {
     protected $client;
-    private $apiKey = 'crimson'; // Your API key
+    private $apiKey = '282g8n7jaeh5pl2hvo2pbtae13'; // Your API key
 
     public function __construct()
     {
         $this->client = new Client([
-            'base_uri' => 'https://localzap.cyberenew.au',
+            'base_uri' => 'http://localhost:8080',
         ]);
     }
 

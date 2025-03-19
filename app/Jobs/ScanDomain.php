@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Jobs;
 
 use App\Models\Scan;
-use App\Models\ScanAlerts;
+use App\Jobs\ProcessAlertsBatch;
 use App\Services\OwaspZapService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -16,10 +14,8 @@ use Throwable;
 
 class ScanDomain implements ShouldQueue
 {
-
     public $timeout = 1200; // 20 minutes
-    public $tries = 3; // Number of retries
-
+    public $tries = 3;
 
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -44,7 +40,8 @@ class ScanDomain implements ShouldQueue
                 $this->release(self::DELAY_SECONDS);
             } else {
                 $this->updateStatus($this->scan, 'Initialized Alerts');
-                $this->storeAlerts($owaspZapService, $this->domain, $this->scan->scan_id);
+                $this->dispatchAlertBatchJobs($owaspZapService, $this->domain, $this->scan->scan_id);
+                $this->updateStatus($this->scan, 'Processing Alerts');
             }
         } catch (Throwable $exception) {
             Log::error('Exception in ScanDomain Job: ' . $exception->getMessage());
@@ -52,49 +49,23 @@ class ScanDomain implements ShouldQueue
         }
     }
 
-    public function failed(Throwable $exception): void
+    protected function dispatchAlertBatchJobs(OwaspZapService $service, $domain_url, $scan_id)
     {
-        $this->updateStatus($this->scan, 'Failed: Error Code-' . $exception->getCode());
-        Log::error('Failed Running Job: ' . $exception->getMessage());
-    }
-
-    public function storeAlerts($service, $domain_url, $scan_id)
-    {
-        $start = 0;
-        $scan = \App\Models\Scan::query()->where('scan_id', $scan_id)->get()->first();
         $alerts_count = $service->getAlertsCount($domain_url);
+        Scan::query()->where('scan_id', $scan_id)->update(['expected_alerts' => $alerts_count['numberOfAlerts'] + 1]);
         $total_count = $alerts_count['numberOfAlerts'] + 1;
-        while ($start < $total_count) {
-            $alerts = $service->getAlerts($domain_url, $start, self::BATCH_COUNT);
-            $alerts = $alerts['alerts'];
-            if (empty($alerts)) {
-                break;  // Exit the loop if no more alerts are returned
-            }
-            $bulkInsertData = [];
-            foreach ($alerts as $alert) {
-                $bulkInsertData[] = [
-                    'scan_id' => $scan_id,
-                    'sourceid' => $alert['sourceid'],
-                    'alertRef' => $alert['alertRef'],
-                    'a_id' => $alert['id'],
-                    'created_at' => now(),
-                ];
-                $start++;
-            }
-            ScanAlerts::insert($bulkInsertData);
-            $this->updateStatus($this->scan, 'Fetching Alerts (' . $start . '/' . $total_count . ')');
-        }
-        if ($start >= $total_count) {
-            $this->updateStatus($this->scan, 'Completed');
+        $batches = (int) ceil($total_count / self::BATCH_COUNT);
+        for ($i = 0; $i < $batches; $i++) {
+            $offset = $i * self::BATCH_COUNT;
+            ProcessAlertsBatch::dispatch($domain_url, $scan_id, $offset, self::BATCH_COUNT);
         }
     }
 
-    private function checkStatusFromAPI($service, mixed $scan_id)
+    private function checkStatusFromAPI($service, $scan_id)
     {
         $status = $service->getScanStatus($scan_id);
         return $status['status'];
     }
-
 
     private function updateStatus($scan, $status)
     {

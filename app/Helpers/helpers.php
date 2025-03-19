@@ -195,3 +195,47 @@ function getThreshold($score)
         return ['Unlikely', '#19b861'];
     }
 }
+
+function generateHistoricalScore($scan_id)
+{
+    // Retrieve detailed health and attack data for the given scan.
+    $healthData = generateHealthData($scan_id);
+    $attackData = generateAttackData($scan_id);
+
+    // Calculate average health score.
+    // Each health score from generateHealthData() is on a scale where 9 is ideal.
+    $healthSum = 0;
+    $healthCount = count($healthData);
+    foreach ($healthData as $health) {
+        $healthSum += floatval($health['score']);
+    }
+    // Default to 9 (perfect) if no data is found.
+    $avgHealth = $healthCount > 0 ? $healthSum / $healthCount : 9;
+
+    // Calculate average attack score.
+    // Higher attack scores represent higher risk.
+    $attackSum = 0;
+    $attackCount = count($attackData);
+    foreach ($attackData as $attack) {
+        $attackSum += $attack['score'];
+    }
+    $avgAttack = $attackCount > 0 ? $attackSum / $attackCount : 0;
+
+    // Normalize the attack score.
+    // We assume that an average attack score of 2000 corresponds to the worst-case scenario on a 0-9 scale.
+    // (This mirrors the thresholds in getThreshold())
+    $normalizedAttack = min($avgAttack / 2000, 1) * 9;
+
+    // Compute a composite score.
+    // Here, (9 - normalizedAttack) represents the "attack safety" (a higher value is better),
+    // so by averaging it with the average health score, we get a balanced overall score.
+    // The result is a value between 0 and 9.
+    $overallScore = ($avgHealth + (9 - $normalizedAttack)) / 2;
+
+    // Ensure the score is not negative.
+    $overallScore = max(0, $overallScore);
+
+    // Return the composite score formatted to two decimal places.
+    return number_format($overallScore, 2);
+}
+

@@ -22,7 +22,7 @@
                 </div>
                 <div class="bg-white col-span-1 shadow text-center border"
                      style="border-radius: 15px; padding: 15px 30px">
-                    <h1>{{$domain->score}}</h1>
+                    <h1>{{$domain->latest_score}}</h1>
                 </div>
                 <div class="bg-white col-span-1 shadow text-center border"
                      style="border-radius: 15px; padding: 15px 30px">

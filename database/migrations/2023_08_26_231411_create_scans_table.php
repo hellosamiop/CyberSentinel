@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id');
             $table->foreignId('domain_id');
             $table->string('scan_status');
+            $table->string('expected_alerts')->nullable();
             $table->string('scan_id');
             $table->timestamps();
         });

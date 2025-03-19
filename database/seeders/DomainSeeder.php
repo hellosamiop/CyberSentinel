@@ -16,46 +16,40 @@ class DomainSeeder extends Seeder
     public function run()
     {
         Domain::create([
-            'name' => 'Public Firing Range',
-            'domain_url' => 'https://public-firing-range.appspot.com',
+            'name' => 'HackThisSite',
+            'domain_url' => 'https://www.hackthissite.org',
             'industry_id' => 1,
             'country_id' => 1,
             'user_id' => 1,
         ]);
         Domain::create([
-            'name' => 'PWC',
-            'domain_url' => 'https://www.pwc.com.au',
+            'name' => 'VulnWeb',
+            'domain_url' => 'http://testhtml5.vulnweb.com/',
             'industry_id' => 1,
             'country_id' => 1,
             'user_id' => 1,
         ]);
         Domain::create([
             'name' => 'Countplus',
-            'domain_url' => 'https://www.countplus.com.au',
+            'domain_url' => 'http://testasp.vulnweb.com/',
             'industry_id' => 1,
             'country_id' => 1,
             'user_id' => 1,
         ]);
         Domain::create([
-            'name' => 'Findex',
-            'domain_url' => 'https://www.findex.com.au',
+            'name' => 'OWASP',
+            'domain_url' => 'https://blog.dinosec.com/2013/11/owasp-vulnerable-web-applications.html?m=1',
             'industry_id' => 1,
             'country_id' => 1,
             'user_id' => 1,
         ]);
         Domain::create([
-            'name' => 'BMO',
-            'domain_url' => 'https://www.bmo.com.au',
+            'name' => 'Qalam',
+            'domain_url' => 'https://qalam.nust.edu.pk/',
             'industry_id' => 1,
             'country_id' => 1,
             'user_id' => 1,
         ]);
-        Domain::create([
-            'name' => 'KPMG',
-            'domain_url' => 'https://kpmg.com',
-            'industry_id' => 1,
-            'country_id' => 1,
-            'user_id' => 1,
-        ]);
+
     }
 }

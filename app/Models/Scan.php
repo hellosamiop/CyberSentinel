@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Model;
 class Scan extends Model
 {
     use HasFactory;
-
+    protected $guarded = [];
 
     public function getScanStatusAttribute($value)
     {
-        if ($value == '100') {
+        if ($value == 'Scan Completed') {
             return 'Completed';
         } elseif ($value == 'initialized') {
             return 'Initialized Scan';
@@ -60,6 +60,17 @@ class Scan extends Model
     public function generateReport()
     {
 
+    }
+
+    public function getScoreAttribute()
+    {
+        $score = $this->scanResults()->latest()->pluck('score')->first();
+        return $score;
+    }
+
+    public function isComplete()
+    {
+        return $this->scan_status == 'Completed';
     }
 
 }

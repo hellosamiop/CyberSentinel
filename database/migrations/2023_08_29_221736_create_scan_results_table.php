@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('scan_id');
             $table->json('result');
+            $table->string('score')->nullable();
             $table->timestamps();
         });
     }
