@@ -64,7 +64,7 @@ class ScanDomain implements ShouldQueue
     private function checkStatusFromAPI($service, $scan_id)
     {
         $status = $service->getScanStatus($scan_id);
-        return $status['status'];
+        return $status['status'] ?? '';
     }
 
     private function updateStatus($scan, $status)

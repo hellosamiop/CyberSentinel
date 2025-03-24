@@ -76,6 +76,6 @@ class Domain extends Model
 
     public function getLatestScoreAttribute()
     {
-        return $this->scoreHistory(true)[0];
+        return $this->scoreHistory(true)[0] ?? 0;
     }
 }

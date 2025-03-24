@@ -43,7 +43,7 @@ class Scan extends Model
      */
     public function scanResults()
     {
-        return $this->hasMany(ScanResult::class);
+        return $this->hasOne(ScanResult::class);
     }
 
     /**
