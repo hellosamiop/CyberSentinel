@@ -9,7 +9,7 @@ use GuzzleHttp\Exception\ServerException;
 class OwaspZapService
 {
     protected $client;
-    private $apiKey = '282g8n7jaeh5pl2hvo2pbtae13'; // Your API key
+    private $apiKey = 'c6rhiukfufpcu7umjit9vktvst'; // Your API key
 
     public function __construct()
     {
